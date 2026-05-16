@@ -126,6 +126,18 @@ Color coding: green below 70%, yellow at 70-85%, red above 85% for context; blue
 curl -sL https://raw.githubusercontent.com/tw93/Waza/main/scripts/setup-statusline.sh | bash
 ```
 
+**Codex**
+
+Codex has native statusline items. Add to `~/.codex/config.toml`:
+
+```toml
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "five-hour-limit", "weekly-limit"]
+status_line_use_colors = true
+```
+
+Note: Codex shows remaining quota, while the Claude Code statusline above shows used percentage. Upstream does not yet offer used-percentage items (e.g. `five-hour-used` / `weekly-used`).
+
 ### English Coaching
 
 Optional rule for English practice. When your prompt contains an English mistake, the agent appends a short 😇 correction; Chinese-only prompts stay untouched.
