@@ -104,7 +104,7 @@ python3 -c "
 from pathlib import Path
 p = Path('$tmpdir/repo8/skills/read/SKILL.md')
 t = p.read_text()
-t = t.replace(' Use when users ask 看这个链接/读一下/抓取网页/read this/check this URL/fetch this page.', '')
+t = t.replace(' Use when users ask 看这个链接/读一下/read this/check this URL.', '')
 p.write_text(t)
 "
 if (cd "$tmpdir/repo8" && python3 scripts/verify_skills.py --root . >"$tmpdir/usewhen.out" 2>"$tmpdir/usewhen.err"); then

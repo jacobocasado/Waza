@@ -83,6 +83,29 @@ if grep -q 'SHOULD_NOT_LEAK' "$tmpdir/context.out"; then
   echo "agent context leaked sensitive config"; exit 1
 fi
 
+# Global drift: Codex AGENTS.md with only generated identity context should be
+# flagged when Claude has operational rules.
+mkdir -p "$home_dir/.claude"
+printf '%s\n' \
+  '# Global Rules' \
+  '## Git Safety' \
+  'Do not auto-push.' \
+  '## Verification' \
+  'Run checks before claiming done.' \
+  > "$home_dir/.claude/CLAUDE.md"
+printf '%s\n' '<!-- nian-identity:start -->' 'identity only' '<!-- nian-identity:end -->' > "$home_dir/.codex/AGENTS.md"
+HOME="$home_dir" bash "$CHECKER" "$project" summary >"$tmpdir/drift.out"
+grep -q '^codex_status: WARN$' "$tmpdir/drift.out"
+grep -q 'global Codex AGENTS.md has identity/memory context but lacks operational rules' "$tmpdir/drift.out"
+
+# High-permission Codex config without an explicit deny floor is a warning.
+{
+  printf '%s\n' 'approval_policy = "never"'
+  printf '%s\n' 'sandbox_mode = "danger-full-access"'
+} >> "$home_dir/.codex/config.toml"
+HOME="$home_dir" bash "$CHECKER" "$project" summary >"$tmpdir/danger.out"
+grep -q 'Codex high-permission mode lacks a deny floor' "$tmpdir/danger.out"
+
 # Delegation: CLAUDE.md pointing to AGENTS.md should show delegates_to=yes and
 # clear the conflict warning.
 printf '%s\n' '@AGENTS.md' > "$project/CLAUDE.md"

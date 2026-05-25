@@ -30,6 +30,7 @@ from skill_checks import (  # noqa: E402
     check_marketplace,
     check_markdown_links,
     check_no_root_skill,
+    check_portable_skill_surface,
     check_readme_install_command,
     check_references,
     check_resolver,
@@ -85,6 +86,7 @@ def main() -> int:
     check_references(root, skill_files)
     resolver_path = check_resolver(root, skill_names)
     all_md = collect_all_md(root, skill_names, resolver_path)
+    check_portable_skill_surface(root, all_md)
     check_markdown_links(root, all_md)
     check_table_pipes(root, all_md)
     check_no_root_skill(root)

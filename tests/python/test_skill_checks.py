@@ -9,6 +9,7 @@ import pytest
 
 from skill_checks import (
     check_description_conformance,
+    check_portable_skill_surface,
     check_trigger_overlap,
     pipe_count,
 )
@@ -110,3 +111,47 @@ def test_trigger_overlap_empty_safe(capsys):
     check_trigger_overlap({"a": set(), "b": set()})
     out = capsys.readouterr().out
     assert "ok: trigger keyword overlap below threshold" in out
+
+
+# ---- check_portable_skill_surface -----------------------------------------
+
+
+def test_portable_skill_surface_happy_path(tmp_path, capsys):
+    path = tmp_path / "skills" / "check" / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    path.write_text("Use project context to choose the platform tool.\n")
+
+    check_portable_skill_surface(tmp_path, [path])
+    out = capsys.readouterr().out
+    assert "ok: portable skill surface" in out
+
+
+def test_portable_skill_surface_rejects_downloads_default(tmp_path, capsys):
+    path = tmp_path / "skills" / "read" / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    path.write_text("Save to ~/Downloads/{title}.md by default.\n")
+
+    with pytest.raises(SystemExit):
+        check_portable_skill_surface(tmp_path, [path])
+    assert "NON-PORTABLE DEFAULT SAVE PATH" in capsys.readouterr().err
+
+
+def test_portable_skill_surface_rejects_forced_gh(tmp_path, capsys):
+    path = tmp_path / "skills" / "check" / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    path.write_text("Use `gh` CLI for all GitHub interactions, not MCP or raw API.\n")
+
+    with pytest.raises(SystemExit):
+        check_portable_skill_surface(tmp_path, [path])
+    assert "FORCED GITHUB TOOLING" in capsys.readouterr().err
+
+
+def test_portable_skill_surface_warns_on_project_names(tmp_path, capsys):
+    path = tmp_path / "skills" / "write" / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    path.write_text("Use the Mole release flow as the default.\n")
+
+    check_portable_skill_surface(tmp_path, [path])
+    out = capsys.readouterr().out
+    assert "warn: project-specific names or platform products" in out
+    assert "ok: portable skill surface" in out

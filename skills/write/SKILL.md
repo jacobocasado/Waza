@@ -66,10 +66,11 @@ Format: target-project style by default. If no project style is available, use n
 Before drafting, gather style references:
 
 1. Read the target project's `CLAUDE.md` for its Release Convention / Release Flow section.
-2. Run `gh release view --json body -R <owner>/<repo>` to read the most recent release as a style, length, and density reference.
-3. If the user mentions comparing with a sibling project's release style, ask for the `owner/repo` to fetch it: `gh release view --json body -R <owner>/<sibling>`.
-4. Match the reference release's item count, sentence length, and tone. Do not invent a new format.
-5. Keep each release-note item to one sentence unless the reference project clearly does otherwise. Do not add emoji to release prose unless the target surface is explicitly a reaction or celebratory social surface.
+2. Read the target project's existing release source as a style, length, and density reference: changelog, release notes, registry page, appcast, or platform release page.
+3. For GitHub projects, `gh release view --json body -R <owner>/<repo>` is the preferred way to read the most recent release when `gh` is available. If the project is not on GitHub, use the release source named by the project docs or user request.
+4. If the user mentions comparing with a sibling project's release style, ask for the target identifier or release URL before fetching it.
+5. Match the reference release's item count, sentence length, and tone. Do not invent a new format.
+6. Keep each release-note item to one sentence unless the reference project clearly does otherwise. Do not add emoji to release prose unless the target surface is explicitly a reaction or celebratory social surface.
 
 ## Document Review Mode
 

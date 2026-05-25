@@ -21,6 +21,18 @@ See [rules/durable-context.md](../../rules/durable-context.md) for when to read 
 
 For `/design`, visual constraints are `decision`, `preference`, and `principle` entries; reusable product and UI patterns are `pattern` and `learning`. Current screenshots, rendered output, code, design tokens, and user feedback override memory. Reuse durable visual preferences and mature interaction patterns, but still name the current visual problem from the screenshot or source before changing code.
 
+## Visual Quick-Fix Mode
+
+Activate when the user asks for a narrow visual repair with a concrete symptom: overflow, clipped or wrapped text, misalignment, spacing imbalance, contrast/readability, localized text not fitting, or compact responsive breakage. This is for fixing an existing surface, not redesigning it.
+
+Flow:
+
+1. Read the current UI evidence: screenshot, rendered page, native view, or responsible component.
+2. Name the exact visual defect in one sentence.
+3. Make the smallest material, geometry, spacing, contrast, typography, or text-fit change that fixes that defect.
+4. Verify the real running surface or generated artifact. Check long words, localized strings, compact states, and at least one narrow viewport when applicable.
+5. If the fix touches three or more components, changes product behavior, or reveals a direction problem, stop and switch to Screenshot Iteration Mode or Lock the Direction First.
+
 ## Screenshot Iteration Mode
 
 Activate when the user sends a screenshot or image alongside a complaint ("这里很丑", "这个不对", "fix this", "looks wrong"). The existing product is the direction. Skip the five-question direction lock.
@@ -56,7 +68,7 @@ Before writing any code, ask the user directly, using the environment's native q
 2. **What is the aesthetic direction?** Name it precisely: dense editorial, raw terminal, ink-on-paper, brutalist grid, warm analog. "Clean and modern" is not a direction. If the user names a reference site or product ("feels like Linear / Claude.ai / Vercel"), do not accept it as a direction -- extract 3 concrete properties from it: button radius philosophy, surface depth treatment (shadow vs background step vs border), and accent color family. Name those instead.
 
    **Shortcut for well-known brands**: see "Brand preset flow" in `references/design-reference.md`. Ask first, run the preset, then decompose against the generated file.
-3. **What is the one thing this leaves in memory?** A typeface, color system, unexpected motion, asymmetric layout. Pick one and make it obvious.
+3. **What is the design signature?** A typeface, color system, unexpected motion, asymmetric layout. Pick one and make it obvious.
 4. **What are the hard constraints?** Framework, bundle size, contrast minimums, keyboard accessibility.
 5. **What is the signature micro-interaction?** Scale on press, staggered reveal, or contextual icon animation. Pick one and know exactly how it's implemented.
 

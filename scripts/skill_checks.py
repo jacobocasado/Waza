@@ -25,6 +25,13 @@ URL_PREFIXES = ("http://", "https://", "mailto:", "ftp://", "tel:", "data:")
 SEP_RE = re.compile(r'^[\s|:\-]+$')
 PERSONAL_PATH_PATTERN = re.compile(r'/(?:Users|home)/[A-Za-z0-9._-]+/')
 SKILL_REF_RE = re.compile(r'skills/([a-z][a-z0-9_-]*)/SKILL\.md')
+PROJECT_SPECIFIC_NAME_RE = re.compile(r'\b(?:Mole|MiaoYan|Kami|Kaku|Pake)\b')
+PROJECT_RITUAL_RE = re.compile(r'\b(?:Sparkle|MAS|Homebrew tap|Xcode scheme)\b', re.IGNORECASE)
+FORCED_GITHUB_TOOL_RE = re.compile(
+    r'(?:Use\s+`?gh`?\s+CLI\s+for\s+all\s+GitHub\s+interactions|'
+    r'for\s+all\s+GitHub\s+interactions,\s+not\s+MCP\s+or\s+raw\s+API)',
+    re.IGNORECASE,
+)
 
 DURABLE_CONTEXT_SKILLS = {"think", "check", "hunt", "design", "write", "health"}
 
@@ -281,6 +288,47 @@ def check_durable_context_and_paths(root: Path, skill_files: list[Path]):
                 f"  Skill-specific paragraph must name what current state overrides memory."
             )
         print(f"ok: durable context preflight for {skill}")
+
+
+def check_portable_skill_surface(root: Path, markdown_paths: list[Path]):
+    """Guard Waza's public skill surface against private/project-specific drift.
+
+    Waza skills should teach transferable workflow behavior. Concrete project
+    names and product names are warning signals, while one-machine paths and
+    platform-forcing commands are hard portability failures.
+    """
+    scan_paths = list(markdown_paths)
+    scan_paths.extend(sorted((root / "rules").glob("*.md")))
+    agents = root / "AGENTS.md"
+    if agents.exists():
+        scan_paths.append(agents)
+
+    seen: set[Path] = set()
+    warning_paths: list[str] = []
+    for path in scan_paths:
+        if path in seen or not path.exists():
+            continue
+        seen.add(path)
+        rel = path.relative_to(root)
+        text = path.read_text()
+        if "~/Downloads" in text:
+            fail(
+                f"NON-PORTABLE DEFAULT SAVE PATH: {rel}\n"
+                f"  Use a user-specified directory, project scratch path, or session temp directory."
+            )
+        if FORCED_GITHUB_TOOL_RE.search(text):
+            fail(
+                f"FORCED GITHUB TOOLING IN GENERIC SURFACE: {rel}\n"
+                f"  GitHub projects may prefer gh, but Waza must derive platform tools from project context."
+            )
+        if PROJECT_SPECIFIC_NAME_RE.search(text) or PROJECT_RITUAL_RE.search(text):
+            warning_paths.append(rel.as_posix())
+    if warning_paths:
+        print(
+            "warn: project-specific names or platform products in portable surface "
+            f"({', '.join(warning_paths[:8])})"
+        )
+    print("ok: portable skill surface")
 
 
 def check_resolver(root: Path, skill_names: set[str]):
