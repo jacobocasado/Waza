@@ -77,7 +77,7 @@ Download [waza.zip](https://github.com/tw93/Waza/releases/latest/download/waza.z
 
 **Pi coding agent**
 
-Pi can load Waza's standard `skills/<name>/SKILL.md` layout from the repo or from package metadata that points `pi.skills` at `./skills`. Install from npm with `pi install npm:@tw93/waza`; `/health` audits Pi settings, configured packages, and local skill roots alongside Claude Code and Codex.
+Pi can load Waza's standard `skills/<name>/SKILL.md` layout from the repo or from package metadata that points `pi.skills` at `./skills`. The npm package metadata is ready for `@tw93/waza`; `/health` audits Pi settings, configured packages, and local skill roots alongside Claude Code and Codex.
 
 **Update**
 
