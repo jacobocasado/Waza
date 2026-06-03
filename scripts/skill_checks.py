@@ -493,6 +493,64 @@ def check_rules_files_present(root: Path):
     print(f"ok: rules/ files present ({', '.join(required)})")
 
 
+def check_anti_patterns_contract(root: Path):
+    """Keep shared anti-pattern rules generic and mechanically sane."""
+    path = root / "rules" / "anti-patterns.md"
+    if not path.exists():
+        fail(f"MISSING ANTI-PATTERNS: expected {path}")
+
+    text = path.read_text()
+    if re.search(r"\bWaza\b", text):
+        fail(
+            "ANTI-PATTERN PROJECT NAME LEAK: rules/anti-patterns.md\n"
+            "  Anti-pattern rules are shared behavior. Keep row wording generic, "
+            "without repo or product names."
+        )
+
+    stale_terms = (
+        "Private rule leak",
+        "Project fact promoted to global skill",
+        "public Waza rules",
+        "reusable Waza skill",
+        "Keep Waza generic",
+    )
+    for term in stale_terms:
+        if term in text:
+            fail(
+                f"ANTI-PATTERN STALE SPECIALIZATION: {term!r}\n"
+                "  Merge private-context and project-fact cases into one generic public-surface rule."
+            )
+
+    rows: list[tuple[int, str]] = []
+    for line in text.splitlines():
+        if not line.startswith("| ") or line.startswith("|---"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if not cells or not cells[0].isdigit():
+            continue
+        rows.append((int(cells[0]), cells[1] if len(cells) > 1 else ""))
+
+    expected_numbers = list(range(1, len(rows) + 1))
+    actual_numbers = [number for number, _pattern in rows]
+    if actual_numbers != expected_numbers:
+        fail(
+            "ANTI-PATTERN NUMBERING DRIFT: rules/anti-patterns.md\n"
+            f"  Expected contiguous numbering {expected_numbers}; got {actual_numbers}."
+        )
+
+    pattern_names: dict[str, int] = {}
+    for number, pattern in rows:
+        key = pattern.lower()
+        if key in pattern_names:
+            fail(
+                "ANTI-PATTERN DUPLICATE NAME: rules/anti-patterns.md\n"
+                f"  Rows {pattern_names[key]} and {number} both use {pattern!r}."
+            )
+        pattern_names[key] = number
+
+    print("ok: anti-patterns contract")
+
+
 def check_waza_routing_skills(root: Path, skill_names: set[str]):
     """rules/waza-routing.md routing table must enumerate exactly the skills
     under skills/. Structural drift only -- trigger phrases stay hand-tuned."""
