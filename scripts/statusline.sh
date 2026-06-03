@@ -132,18 +132,10 @@ apply_hw() {
     applied_hw_reset="$hw_reset"
     return
   fi
-  if [ "$hw_ok" = "0" ] || [ "$live_pct" -gt "$hw_pct" ] 2>/dev/null; then
-    applied_pct="$live_pct"
-    applied_reset="$live_reset"
-    applied_hw_pct="$live_pct"
-    applied_hw_reset="$live_reset"
-    return
-  fi
-
-  applied_pct="$hw_pct"
-  applied_reset="${live_reset:-$hw_reset}"
-  applied_hw_pct="$hw_pct"
-  applied_hw_reset="$hw_reset"
+  applied_pct="$live_pct"
+  applied_reset="$live_reset"
+  applied_hw_pct="$live_pct"
+  applied_hw_reset="$live_reset"
 }
 
 write_highwater() {
